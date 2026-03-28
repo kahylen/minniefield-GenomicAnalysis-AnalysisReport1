@@ -42,3 +42,9 @@ git remote add origin git@github.com:kahylen/minniefield-GenomicAnalysis-Analysi
 git remote -v
 git branch -M main
 git push -u origin main
+
+I then finished writing this log and wanted to commit these changes so I did this 
+
+git add project_analysis_log.txt
+git commit -m "update log"
+git push origin main
