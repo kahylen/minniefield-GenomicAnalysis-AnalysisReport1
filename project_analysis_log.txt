@@ -1,0 +1,44 @@
+### Analysis report 1 ###
+## Kahylen Minniefield ##
+# 2026-03-27 #
+
+ 
+
+
+
+#To create my local directory I used the mkdir to create a project directory.
+mkdir project 
+
+#To move into project directory 
+cd project/ 
+
+#I created 3 more directories named data, analysis and scripts.
+mkdir data 
+mkdir analysis
+mkdir scripts
+cd data
+
+#inside the data directory I created the raw and processed directory
+mkdir raw 
+mkdir processed
+cd ../
+cd analysis/
+
+#Inside the analysis directory I created the fastqc and bamqc directories
+mkdir fastqc
+mkdir bamqc
+#Inside each empty directory I used the touch command to create an empty text file.
+
+Below I created a git repository in the project directory
+git init
+ git add .
+ git commit -m "initialize git repo"
+ssh-keygen -t ed25519 -C "minniefield-GenomicAnalysis-AnalysisReport1"
+
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+git remote add origin git@github.com:kahylen/minniefield-GenomicAnalysis-AnalysisReport1.git
+git remote -v
+git branch -M main
+git push -u origin main
