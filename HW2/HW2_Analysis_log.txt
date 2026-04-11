@@ -1,0 +1,78 @@
+### HW 2 Analysis Log ###
+## Kahylen Minniefield ##
+# 2026_04_11 #
+
+First, because I am doing this assignment on my personal desktop and not my laptop I needed add a new ssh key and add it to github. 
+
+I then cloned the repository to the specified location in the hpc and moved the HW2 directory inside where this analysis log should be located. ( I follwed this step with help from githubs instructions and prompts from google)
+
+$ git clone git@github.com:kahylen/minniefield-GenomicAnalysis-AnalysisReport1.git
+
+$ mv HW2/ minniefield-GenomicAnalysis-AnalysisReport1/
+
+1.
+
+first I need to extract the sequences that are larger than 500 bps and have a score greater than 100
+
+note: 
+$1 = chr
+$2 = start pos
+$3 = end pos
+$4 = seq name
+$5 = quality score
+
+to do this I will use awk and pipe the result into a new bed file called hw2_intervals
+
+$ awk '$3 - $2 > 500 && $5 > 100 {print $0}' hw2.bed > hw2_intervals.bed
+
+2.
+
+second I need to find duplicates in a fam file 
+a. find all IID duplicates and print to a new file
+b. delete all duplicates and print to a new file. Then list the number of unique FIDs and print that count to a new file.
+
+note:
+$1 = FID (family ID)
+$2 = IID (individual ID) 
+$3 = PID (paternal ID)
+$4 = MID (maternal ID)
+$5 = Sex
+
+first I will use awk to print all IID's ($2), pipe the output to sort and then use uniq -d to filter the duplicates into a file named hw2_duplicates.fam
+
+$ awk '{print $2}' hw2.fam | sort | uniq -d > hw2_duplicates.fam  (first try. Tecnically works but only saves the duplicate IIDs not the entire line)
+
+$ cat hw2.fam | sort -k 2,2 | uniq -d > hw2_duplicates.fam ( I found the -k flag for sort using google search)
+
+Now I will use the similar commands to find the uniq FID counts
+
+$ cat hw2.fam | sort -k 2,2 | uniq | awk '{print $1}' | uniq -c > hw2_FID.counts
+
+3. 
+Here I need to extract the names of each sample of a fasta file and remove everything that is not the base ID
+
+a.
+to get all the headers I used grep and saved it in an output file
+
+$ grep "^>" hw2.fa > hw2_fasta_names.txt
+
+b.
+I then used this pattern to capture only the id number since the ids are a single capital letter followed by a string of numbers
+
+$ grep -o [A-Z][0-9]'\+' hw2_fasta_names.txt > hw_modID.fa
+
+4. 
+Here I need to find specific subsets of samples 
+
+a.
+First I modified the pipeline in Q3 to look for fids that begin with "Russia", I then sorted the file and counted the number of uniq fids and stored them in a file named "testv62_FID.counts"
+
+To total the number of times each fid shows up I used awk. The total ended up at 981.
+$ awk '{sum += $1} END {print sum}' testv62_FID.counts (I used google to form this command) 
+I then used wc to find the total number of lines remaining in the file, 319, which represents the number of uniq Russian fids in the file 
+$ wc testv62_FID.counts
+
+b.
+I then chose the "Russia_Viking.SG" FID 
+
+so using grep I selected the lines matching my FID and stored that output into v62_Russia_Viking.SG.fam
