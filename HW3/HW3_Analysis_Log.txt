@@ -1,0 +1,27 @@
+### HW 3 Analysis Log ###
+## Kahylen Minniefield ##
+# 2026_04_19 #
+
+First I copied the HW3 dir to my personal dir using cp 
+
+I next created a this text file as well as a shell script to QC the provided fastq files in the HW3 dir
+
+In the script I used the fastqc command to QC the paired fastq files
+
+I then used scp to download the zip files to my local computer.
+
+Looking at the first pair of fastqc files (22018FL-04-01-12_S12_L002_R_001_fastqc)
+
+It seems that there is adapter contamination, so I will use fastp to fix this issue
+
+Looking at the second pair of fastqc files (22154FL-03-01-01_S1_L003_R_001) 
+
+It seems that there is adapter contamination, so I will use fastp to fix this issue
+
+Looking at the third pair of fastqc files (22154FL-03-01-01_S1_L003_R_001.fastq.gz)
+
+This one seems to have adapter contamination as well as quality degredation at the end of sequencing and heavy sequence duplication. Below are the final commands used to QC them
+
+#fastp -i 22018FL-04-01-12_S12_L002_R1_001.fastq.gz -I 22018FL-04-01-12_S12_L002_R2_001.fastq.gz -o group1_file1_trimmed_v1.fastq.gz -O group1_file2_trimmed_v1.fastq.gz --thread 4
+#fastp -i 22018FL-04-01-21_S21_L007_R1_001.fastq.gz -I 22018FL-04-01-21_S21_L007_R2_001.fastq.gz -o group2_file1_trimmed_v1.fastq.gz -O group2_file2_trimmed_v1.fastq.gz --thread 4
+fastp -i group3_file1_trimmed_v1.fastq.gz -I group3_file2_trimmed_v1.fastq.gz -o group3_file1_trimmed_v3.fastq.gz -O group3_file2_trimmed_v3.fastq.gz --adapter_sequence=TGACTGG --adapter_sequence_r2=TGACTGG -D --max_len1 135 --max_len2 135 --thread 4
