@@ -1,0 +1,44 @@
+### HW 4 Analysis Log ###
+## Kahylen Minniefield ##
+# 2026_04_28 #
+
+First I need to take the paired fastq files and map them using bwa -mem 
+
+bwa mem -R -t 4 /data/Reynolds/GenomicAnalysisCourse/reference/hg38.fa.gz /data/Reynolds/kem0307/minniefield-GenomicAnalysis-AnalysisReport1/HW3/group1_file1_trimmed_v1.fastq.gz /data/Reynolds/kem0307/minniefield-GenomicAnalysis-AnalysisReport1/HW3/group1_file2_trimmed_v1.fastq.gz > grp1_aligned.sam
+
+bwa mem -R -t 4 /data/Reynolds/GenomicAnalysisCourse/reference/hg38.fa.gz /data/Reynolds/kem0307/minniefield-GenomicAnalysis-AnalysisReport1/HW3/group2_file1_trimmed_v1.fastq.gz /data/Reynolds/kem0307/minniefield-GenomicAnalysis-AnalysisReport1/HW3/group2_file2_trimmed_v1.fastq.gz > grp2_aligned.sam
+
+bwa mem -R -t 4 /data/Reynolds/GenomicAnalysisCourse/reference/hg38.fa.gz /data/Reynolds/kem0307/minniefield-GenomicAnalysis-AnalysisReport1/HW3/group3_file1_trimmed_v1.fastq.gz /data/Reynolds/kem0307/minniefield-GenomicAnalysis-AnalysisReport1/HW3/group3_file2_trimmed_v1.fastq.gz > grp3_aligned.sam
+
+once I have a sam file I need to sort them and convert to bam files
+
+samtools sort grp1_aligned.sam -o grp1_aligned.sorted.sam
+samtools sort grp2_aligned.sam -o grp2_aligned.sorted.sam
+samtools sort grp3_aligned.sam -o grp3_aligned.sorted.sam
+
+samtools view -b -o grp1_aligned.sorted.bam grp1_aligned.sorted.sam
+samtools view -b -o grp2_aligned.sorted.bam grp2_aligned.sorted.sam
+samtools view -b -o grp3_aligned.sorted.bam grp3_aligned.sorted.sam
+
+I can then index the created bam file to create bai files
+
+samtools index grp1_aligned.sorted.bam
+samtools index grp2_aligned.sorted.bam
+samtools index grp3_aligned.sorted.bam
+
+Now I need to use picard to Add read groups and mark duplicates.
+
+picard AddOrReplaceReadGroups I=grp1_aligned.sorted.bam O=grp1_aligned.sorted.RG.bam RGID=sample RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=sample
+picard AddOrReplaceReadGroups I=grp2_aligned.sorted.bam O=grp2_aligned.sorted.RG.bam RGID=sample RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=sample
+picard AddOrReplaceReadGroups I=grp3_aligned.sorted.bam O=grp3_aligned.sorted.RG.bam RGID=sample RGLB=lib1 RGPL=ILLUMINA RGPU=unit1 RGSM=sample
+
+
+picard MarkDuplicates -I grp1_aligned.sorted.RG.bam -O grp1_aligned.sorted.RG.markdups.bam -M grp1_aligned.sorted.RG.markdups_metrics.txt
+picard MarkDuplicates -I grp2_aligned.sorted.RG.bam -O grp2_aligned.sorted.RG.markdups.bam -M grp2_aligned.sorted.RG.markdups_metrics.txt
+picard MarkDuplicates -I grp3_aligned.sorted.RG.bam -O grp3_aligned.sorted.RG.markdups.bam -M grp3_aligned.sorted.RG.markdups_metrics.txt 
+
+I can then use qualimap again to check the marked duplicates
+
+qualimap bamqc -nt 4 -bam grp1_aligned.sorted.RG.markdups.bam -outdir grp1_aligned.sorted.RG.markdups_qualimap_results --java-mem-size=4G
+qualimap bamqc -nt 4 -bam grp2_aligned.sorted.RG.markdups.bam -outdir grp2_aligned.sorted.RG.markdups_qualimap_results --java-mem-size=4G
+qualimap bamqc -nt 4 -bam grp3_aligned.sorted.RG.markdups.bam -outdir grp3_aligned.sorted.RG.markdups_qualimap_results
